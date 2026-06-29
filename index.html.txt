@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مُولّد رموز QR الاحترافي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #64748b;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .color-pickers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-picker-wrapper input[type="color"] {
+            width: 50px;
+            height: 40px;
+            padding: 0;
+            border: none;
+            cursor: pointer;
+        }
+
+        .preview-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: sticky;
+            top: 20px;
+        }
+
+        #canvas-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 250px;
+            min-width: 250px;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto !important;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-download {
+            background-color: #10b981;
+        }
+        .btn-download:hover {
+            background-color: #059669;
+        }
+
+        /* اخفاء حقول معينة بناء على النوع */
+        .dynamic-input {
+            display: none;
+        }
+        .dynamic-input.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1><i class="fa-solid fa-qrcode"></i> مُوّلِد الـ QR الاحترافي</h1>
+        <p>اصنع رمز استجابة سريعة مخصص ومناسب لهويتك التجارية بكل سهولة</p>
+    </header>
+
+    <div class="main-grid">
+        <div class="card">
+            <div class="form-group">
+                <label><i class="fa-solid fa-list"></i> اختر نوع الرمز:</label>
+                <select id="qr-type" onchange="toggleInputFields()">
+                    <option value="url">رابط موقع (URL)</option>
+                    <option value="text">نص مخصص</option>
+                    <option value="wifi">شبكة واي فاي (Wi-Fi)</option>
+                </select>
+            </div>
+
+            <div id="input-url" class="form-group dynamic-input active">
+                <label>الرابط الإلكتروني:</label>
+                <input type="url" id="qr-url-val" value="https://google.com" placeholder="https://example.com">
+            </div>
+
+            <div id="input-text" class="form-group dynamic-input">
+                <label>النص المخصص:</label>
+                <textarea id="qr-text-val" rows="3" placeholder="اكتب النص هنا..."></textarea>
+            </div>
+
+            <div id="input-wifi" class="dynamic-input">
+                <div class="form-group">
+                    <label>اسم الشبكة (SSID):</label>
+                    <input type="text" id="wifi-name" placeholder="اسم الشبكة">
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور:</label>
+                    <input type="password" id="wifi-pass" placeholder="كلمة المرور">
+                </div>
+            </div>
+
+            <hr style="margin: 20px 0; border: 0; border-top: 1px solid #e2e8f0;">
+
+            <div class="form-group color-pickers">
+                <div>
+                    <label>لون الرمز:</label>
+                    <div class="color-picker-wrapper">
+                        <input type="color" id="fg-color" value="#000000">
+                    </div>
+                </div>
+                <div>
+                    <label>لون الخلفية:</label>
+                    <div class="color-picker-wrapper">
+                        <input type="color" id="bg-color-picker" value="#ffffff">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>الحجم والدقة (بكسل):</label>
+                <select id="qr-size">
+                    <option value="200">200 x 200</option>
+                    <option value="400" selected>400 x 400 (موصى به)</option>
+                    <option value="800">800 x 800 (عالي الدقة)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fa-solid fa-image"></i> إضافة شعار في المنتصف (اختياري):</label>
+                <input type="file" id="logo-file" accept="image/*">
+            </div>
+
+            <button class="btn" onclick="generateQRCode()"><i class="fa-solid fa-gear"></i> توليد الرمز الآن</button>
+        </div>
+
+        <div class="card preview-area">
+            <h3 style="margin-bottom: 15px;">معاينة الرمز</h3>
+            <div id="canvas-container">
+                <canvas id="qrcode-canvas"></canvas>
+            </div>
+            <button class="btn btn-download" onclick="downloadQR()"><i class="fa-solid fa-download"></i> تحميل بصيغة PNG</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+
+<script>
+    // تغيير الحقول بناء على نوع البيانات المختار
+    function toggleInputFields() {
+        const type = document.getElementById('qr-type').value;
+        document.querySelectorAll('.dynamic-input').forEach(el => el.classList.remove('active'));
+        document.getElementById(`input-${type}`).classList.add('active');
+    }
+
+    // دالة توليد الـ QR الأساسية
+    function generateQRCode() {
+        const type = document.getElementById('qr-type').value;
+        const size = parseInt(document.getElementById('qr-size').value);
+        const fgColor = document.getElementById('fg-color').value;
+        const bgColor = document.getElementById('bg-color-picker').value;
+        
+        let qrValue = '';
+
+        // تجهيز النص بناء على النوع المختار
+        if (type === 'url') {
+            qrValue = document.getElementById('qr-url-val').value;
+        } else if (type === 'text') {
+            qrValue = document.getElementById('qr-text-val').value;
+        } else if (type === 'wifi') {
+            const name = document.getElementById('wifi-name').value;
+            const pass = document.getElementById('wifi-pass').value;
+            // الصيغة القياسية لرموز الواي فاي
+            qrValue = `WIFI:S:${name};T:WPA;P:${pass};;`;
+        }
+
+        if (!qrValue.trim()) {
+            alert('رجاءً أدخل البيانات أولاً!');
+            return;
+        }
+
+        const canvas = document.getElementById('qrcode-canvas');
+        
+        // إنشاء الرمز باستخدام مكتبة QRious
+        const qr = new QRious({
+            element: canvas,
+            value: qrValue,
+            size: size,
+            background: bgColor,
+            foreground: fgColor,
+            level: 'H' // أعلى مستوى لتصحيح الأخطاء ليتحمل إضافة لوجو
+        });
+
+        // معالجة إضافة الشعار (Logo) إذا وُجد
+        const logoInput = document.getElementById('logo-file');
+        if (logoInput.files && logoInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const ctx = canvas.getContext('2d');
+                    // حساب حجم الشعار (نصنع حجم الشعار حوالي 20% من حجم الـ QR)
+                    const logoSize = size * 0.2;
+                    const x = (size - logoSize) / 2;
+                    const y = (size - logoSize) / 2;
+                    
+                    // رسم خلفية بيضاء خلف الشعار لكي لا يتداخل مع الرمز
+                    ctx.fillStyle = bgColor;
+                    ctx.fillRect(x - 4, y - 4, logoSize + 8, logoSize + 8);
+                    
+                    // رسم الشعار في المنتصف
+                    ctx.drawImage(img, x, y, logoSize, logoSize);
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(logoInput.files[0]);
+        }
+    }
+
+    // دالة تحميل الصورة
+    function downloadQR() {
+        const canvas = document.getElementById('qrcode-canvas');
+        const image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+        const link = document.createElement('a');
+        link.download = 'professional-qrcode.png';
+        link.href = image;
+        link.click();
+    }
+
+    // توليد رمز تلقائي عند فتح الصفحة لأول مرة
+    window.onload = function() {
+        generateQRCode();
+    }
+</script>
+</body>
+</html>
